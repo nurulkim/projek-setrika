@@ -19,18 +19,31 @@
       font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
-    html,body{height:100%;margin:0;padding:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#222}
-    a{color:inherit;text-decoration:none}
+    html,bodyhtml, body {
+  min-height:100%;  /* ganti height:100% menjadi min-height:100% */
+  margin:0;
+  padding:0;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  color:#222;
+}
+
 
     /* --- Centered dashboard container --- */
     .app {
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:28px;
-      box-sizing:border-box;
-    }
+  display:flex;
+  flex-direction:column;   /* penting agar flex tetap vertikal */
+  align-items:stretch;     /* jangan center vertikal */
+  min-height:100vh;
+  padding:28px;
+  box-sizing:border-box;
+}
+
+.content-wrap {
+  max-height: 90vh;               /* maksimal tinggi sesuai viewport */
+  overflow-y: auto;               /* aktifkan scroll vertikal */
+  -webkit-overflow-scrolling: touch; /* smooth scroll di iOS */
+}
+
 
     .container {
       width:100%;
