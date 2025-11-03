@@ -1,515 +1,259 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Media Pembelajaran Interaktif (All-in-One)</title>
+<meta charset="UTF-8">
+<title>Drag, Drop, Resize – Desktop & HP</title>
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
 
-  <!-- ====== STYLE (tema biru lembut + responsif) ====== -->
-  <style>
-    :root{
-      --primary:#2a4d8f;
-      --accent:#4a90e2;
-      --bg1: #e3f2fd;
-      --bg2: #f3f5f7;
-      --card:#ffffff;
-      --muted:#777;
-      --shadow: 0 6px 18px rgba(38,72,126,0.08);
-      --radius:12px;
-      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+  #menu {
+    width: 100%;
+    background: #eee;
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+  }
 
-    html, body {
-      min-height:100%;
-      margin:0;
-      padding:0;
-      background:linear-gradient(135deg,var(--bg1),var(--bg2));
-      color:#222;
-    }
+  .elemen {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #999;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+  }
 
-    /* --- Centered dashboard container --- */
-    .app {
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      min-height:100vh;
-      padding:28px;
-      box-sizing:border-box;
-    }
+  .elemen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-    .container {
-      width:100%;
-      max-width:1100px;
-      margin:0 auto;
-      padding:30px;
-      background:transparent;
-      box-sizing:border-box;
-    }
+  #elements-layer {
+    width: 100vw;
+    height: calc(100vh - 80px);
+    background: #fafafa;
+    position: relative;
+    overflow: hidden;
+  }
 
-    h1.app-title {text-align:center;color:var(--primary);margin:0 0 18px 0;font-size:28px}
-    .sub {text-align:center;color:var(--muted);margin-bottom:22px}
+  .resizable {
+    position: absolute;
+    border: 2px solid #000;
+    border-radius: 10px;
+    box-sizing: border-box;
+    user-select: none;
+    touch-action: none;
+  }
 
-    /* --- menu grid (icons with text) --- */
-    .menu-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:28px;
-      align-items:stretch;
-    }
+  .resizable img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+    user-select: none;
+    touch-action: none;
+  }
 
-    .menu-item {
-      background:var(--card);
-      border-radius:20px;
-      box-shadow:var(--shadow);
-      padding:22px 12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      cursor:pointer;
-      transition:transform .22s ease, box-shadow .22s ease, background .22s;
-      color:var(--primary);
-      text-align:center;
-      min-height:150px;
-    }
+  .resize-handle {
+    width: 20px;
+    height: 20px;
+    background: #000;
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    cursor: se-resize;
+  }
 
-    .menu-item:hover{
-      transform:translateY(-8px);
-      box-shadow:0 14px 30px rgba(38,72,126,0.12);
-      background:var(--accent);
-      color:#fff;
-    }
-
-    .menu-item img{width:72px;height:72px;display:block;object-fit:contain}
-    .menu-item span{font-weight:600;font-size:15px;display:block;margin-top:6px}
-
-    /* --- Generic page sections --- */
-    .page {display:none;}
-    .page.active {display:block}
-
-    /* --- Back button --- */
-    .back-btn {
-      position:fixed;
-      top:16px;
-      left:16px;
-      width:48px;height:48px;
-      border-radius:50%;
-      background:var(--accent);
-      color:#fff;
-      border:none;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
-      cursor:pointer;
-      z-index:999;
-      font-size:18px;
-    }
-    .back-btn:hover{transform:scale(1.04)}
-    .page-header {text-align:center;color:var(--primary);margin-top:10px}
-
-    /* --- PDF, slides, video viewer --- */
-    .content-wrap {
-      width:95%;
-      max-width:960px;
-      margin:20px auto;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px;
-      box-sizing:border-box;
-    }
-
-    .viewer {
-      width:100%;
-      height:640px;
-      border-radius:10px;
-      overflow:hidden;
-      background:#000;
-    }
-    .viewer iframe{width:100%;height:100%;border:0;display:block}
-
-    .controls-row {display:flex;gap:10px;align-items:center;justify-content:center;margin-top:14px}
-    .btn {
-      background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;
-      box-shadow:0 6px 18px rgba(74,144,226,0.12)
-    }
-    .btn.ghost {background:transparent;color:var(--primary);border:1px solid rgba(0,0,0,0.06)}
-    .desc {text-align:center;color:var(--muted);margin-top:8px}
-
-    /* --- Media interaktif --- */
-    #canvasWrapper {
-      display:flex;
-      gap:18px;
-      align-items:flex-start;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-
-    #canvas {
-      position:relative;
-      width:65%;
-      min-width:320px;
-      height:520px;
-      border:2px solid #ccc;
-      border-radius:12px;
-      background:#fff;
-      overflow:hidden;
-    }
-
-    #drawCanvas {
-      position:absolute;top:0;left:0;width:100%;height:100%;background:transparent;z-index:4;
-    }
-
-    #elements-layer {
-      position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;
-    }
-
-    #petunjuk {
-      position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);color:#777;font-size:16px;text-align:center;
-    }
-
-    #canvasKunci {width:30%;min-width:220px;border:2px dashed #aaa;border-radius:12px;padding:10px;background:#fafafa;text-align:center;display:none;}
-    #canvasKunci img {width:100%;max-height:480px;object-fit:contain;border-radius:8px }
-
-    #elemenContainer {margin-top:16px;width:100%;display:flex;flex-direction:column;align-items:center}
-    #elemenList {display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
-
-    .elemen {width:90px;height:90px;border:2px solid #ccc;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:grab}
-    .elemen img {width:80%;height:80%;object-fit:contain}
-
-    .resizable {position:absolute;border:1px dashed #aaa;border-radius:6px;background:transparent;cursor:move; touch-action: none;}
-    .resizable img{width:100%;height:100%;object-fit:contain;pointer-events:none}
-    .resize-handle{position:absolute;bottom:0;right:0;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:se-resize}
-
-
-    /* === ✅ Horizontal scroll video (REVISI) === */
-    .video-scroll {
-      display: flex;
-      gap: 20px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .video-scroll iframe {
-      width: 320px;
-      height: 180px;
-      flex-shrink: 0;
-      border-radius: 12px;
-      border: none;
-      scroll-snap-align: start;
-      background:#000;
-    }
-
-    .video-scroll::-webkit-scrollbar {
-      display:none;
-    }
-
-    /* --- RESPONSIVE tablet & HP --- */
-    @media (max-width:1024px){
-      .container {padding:20px;}
-      h1.app-title {font-size:24px;}
-      .menu-grid {gap:18px;}
-      .menu-item {min-height:120px;padding:16px;}
-      .menu-item img {width:56px;height:56px;}
-      .viewer {height:480px;}
-      #canvas {width:100%;height:400px;}
-      #canvasKunci {width:100%;min-width:200px;}
-    }
-    @media (max-width:720px){
-      h1.app-title {font-size:20px;}
-      .menu-grid {grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
-      .menu-item {min-height:100px;padding:12px;}
-      .menu-item img {width:48px;height:48px;}
-      .viewer {height:320px;}
-      #canvas {height:320px;}
-      #canvasKunci {min-width:180px;}
-      #elemenList {gap:6px;}
-      .elemen {width:70px;height:70px;}
-
-      .video-scroll iframe {
-        width:260px;
-        height:150px;
-      }
-    }
-
-  </style>
+  #petunjuk {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+    font-size: 20px;
+  }
+</style>
 </head>
 <body>
 
-  <button id="globalBack" class="back-btn" title="Kembali ke Menu Utama" style="display:none">⬅️</button>
-
-  <div class="app">
-    <div class="container">
-
-      <!-- ================== DASHBOARD ================== -->
-      <section id="dashboard" class="page active">
-        <h1 class="app-title">🎓 Media Pembelajaran Interaktif</h1>
-
-        <div class="menu-grid">
-          <div class="menu-item" data-target="materi">
-            <img src="assets/icon-materi.png" alt="Materi">
-            <span>Materi</span>
-          </div>
-
-          <div class="menu-item" data-target="modul">
-            <img src="assets/icon-modul.png" alt="Modul">
-            <span>Modul</span>
-          </div>
-
-          <div class="menu-item" data-target="video">
-            <img src="assets/icon-video.png" alt="Video">
-            <span>Video</span>
-          </div>
-
-          <div class="menu-item" data-target="interaktif">
-            <img src="assets/icon-interaktif.png" alt="Media Interaktif">
-            <span>Media Interaktif</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================== MATERI ================== -->
-      <section id="materi" class="page">
-        <h2 class="page-header">📖 Materi</h2>
-
-        <div class="content-wrap">
-          <div class="viewer" id="materiViewer">
-            <iframe id="slidesFrame" src="https://docs.google.com/presentation/d/e/GOOGLE_SLIDES_EMBED_URL/embed?start=false&loop=false&delayms=3000" allowfullscreen></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn" onclick="openInNewTab(document.getElementById('slidesFrame').src)">Buka di Tab Baru</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-          <p class="desc">Jika embed tidak muncul, pastikan slide di-*publish to web* atau gunakan link embed yang valid.</p>
-        </div>
-      </section>
-
-      <!-- ================== MODUL ================== -->
-      <section id="modul" class="page">
-        <h2 class="page-header">📑 Modul Pembelajaran</h2>
-
-        <div class="content-wrap">
-          <div class="viewer" id="pdfViewer">
-            <iframe id="pdfFrame" src="assets/modul.pdf"></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn" onclick="openInNewTab('assets/modul.pdf')">📥 Unduh / Buka PDF</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================== ✅ VIDEO (REVISI) ================== -->
-      <section id="video" class="page">
-        <h2 class="page-header">🎬 Video Pembelajaran</h2>
-
-        <div class="content-wrap">
-          <div class="video-scroll">
-            <iframe src="https://www.youtube.com/embed/ASBNa7b-7MQ" allowfullscreen></iframe>
-            <iframe src="https://www.youtube.com/embed/aON_if40J_8" allowfullscreen></iframe>
-            <iframe src="https://www.youtube.com/embed/SJ739--Vc3A" allowfullscreen></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================== MEDIA INTERAKTIF ================== -->
-      <section id="interaktif" class="page">
-        <h2 class="page-header">🧰 Media Interaktif: Merangkai Elemen Setrika</h2>
-
-        <div id="canvasWrapper" class="content-wrap">
-          <div id="canvas">
-            <canvas id="drawCanvas"></canvas>
-            <div id="elements-layer"></div>
-            <div id="petunjuk">🧩 Silakan seret elemen ke area ini</div>
-          </div>
-
-          <div id="canvasKunci">
-            <h3>🔍 Susunan Benar</h3>
-            <img src="assets/kunciJawaban.png" alt="Kunci Jawaban" id="imgKunci">
-          </div>
-        </div>
-
-        <div id="elemenContainer" class="content-wrap">
-          <h4>🎨 Elemen Setrika</h4>
-          <div id="elemenList">
-            <div class="elemen" id="elemenA" draggable="true"><img src="assets/titikA.png" alt="A"></div>
-            <div class="elemen" id="elemenB" draggable="true"><img src="assets/titikB.png" alt="B"></div>
-            <div class="elemen" id="elemenC" draggable="true"><img src="assets/titikC.png" alt="C"></div>
-            <div class="elemen" id="elemenD" draggable="true"><img src="assets/titikD.png" alt="D"></div>
-            <div class="elemen" id="elemenE" draggable="true"><img src="assets/titikE.png" alt="E"></div>
-          </div>
-
-          <div class="controls-row" style="margin-top:16px;">
-            <button class="btn" id="modeDraw">✏️ Mode Gambar</button>
-            <button class="btn" id="modeClick">🖱️ Mode Klik</button>
-            <button class="btn" id="undo">↩️ Undo</button>
-            <button class="btn ghost" id="toggleKunci">👁️ Tampilkan Kunci Jawaban</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-          <p class="desc">Seret elemen ke area kiri, lalu sambungkan dengan garis atau klik-titik.</p>
-        </div>
-      </section>
-
-    </div>
+<div id="menu">
+  <div class="elemen" id="el1" draggable="true">
+    <img src="https://picsum.photos/100?1">
   </div>
+  <div class="elemen" id="el2" draggable="true">
+    <img src="https://picsum.photos/100?2">
+  </div>
+  <div class="elemen" id="el3" draggable="true">
+    <img src="https://picsum.photos/100?3">
+  </div>
+</div>
 
-  <!-- ====== SCRIPT NAVIGASI + MEDIA INTERAKTIF ====== -->
-  <script>
-    const pages = document.querySelectorAll('.page');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const globalBack = document.getElementById('globalBack');
-    let currentPageId = 'dashboard';
+<div id="elements-layer">
+  <div id="petunjuk">Tarik elemen ke sini</div>
+</div>
 
-    function showSection(id){
-      pages.forEach(p => p.classList.remove('active'));
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.classList.add('active');
-      currentPageId = id;
-      globalBack.style.display = (id === 'dashboard') ? 'none' : 'flex';
-      if (id === 'interaktif') {
-        initMediaInteractive();
-        setTimeout(() => resizeDrawCanvas(), 100);
-      }
-    }
+<script>
+// Mencegah longpress-menu di HP
+document.addEventListener("contextmenu", e => e.preventDefault());
 
-    menuItems.forEach(mi=>{
-      mi.addEventListener('click', ()=> showSection(mi.getAttribute('data-target')));
-    });
+// ELEMENTS
+const elementsLayer = document.getElementById("elements-layer");
+const petunjuk = document.getElementById("petunjuk");
 
-    globalBack.addEventListener('click', ()=> showSection('dashboard'));
-    function openInNewTab(url){window.open(url, '_blank');}
-    showSection('dashboard');
+// Touch drag id global
+let draggingId = null;
 
-    /***************** MEDIA INTERAKTIF (ASLI) *****************/
-    (function(){
-      const canvasArea = document.getElementById("canvas");
-      const drawCanvas = document.getElementById("drawCanvas");
-      const elementsLayer = document.getElementById("elements-layer");
-      const petunjuk = document.getElementById("petunjuk");
-      const btnDraw = document.getElementById("modeDraw");
-      const btnClick = document.getElementById("modeClick");
-      const btnUndo = document.getElementById("undo");
-      const btnKunci = document.getElementById("toggleKunci");
-      let mediaInitialized = false;
-      let mode="draw",drawing=false,startX,startY,lines=[],tempStart=null;
+// Desktop dragstart + mobile touch fallback
+document.querySelectorAll(".elemen").forEach(el => {
+  // Desktop drag
+  el.addEventListener("dragstart", (e)=> {
+    e.dataTransfer.setData("id", el.id);
+  });
 
-      function resizeDrawCanvas(){
-        const rect = canvasArea.getBoundingClientRect();
-        drawCanvas.width = Math.round(rect.width);
-        drawCanvas.height = Math.round(rect.height);
-        redrawAll();
-      }
+  // Mobile touch
+  el.addEventListener("touchstart", (e)=> {
+    draggingId = el.id;
+  });
+});
 
-      window.addEventListener('resize', ()=> {if(document.getElementById('interaktif').classList.contains('active')) resizeDrawCanvas();});
+// Spawn element
+function spawnElement(id, x, y){
+  const draggedEl = document.getElementById(id);
+  if (!draggedEl) return;
 
-      window.initMediaInteractive = function initMediaInteractive(){
-        if(mediaInitialized) return;
-        mediaInitialized = true;
-        resizeDrawCanvas();
+  petunjuk.style.display = "none";
 
-        btnDraw.onclick = () => setMode("draw");
-        btnClick.onclick = () => setMode("click");
-        btnUndo.onclick = undoLine;
-        btnKunci.onclick = toggleKunci;
+  const clone = document.createElement("div");
+  clone.classList.add("resizable");
+  clone.style.left = `${x}px`;
+  clone.style.top = `${y}px`;
+  clone.style.width = "100px";
+  clone.style.height = "100px";
 
-        setMode("draw");
+  const img = document.createElement("img");
+  img.src = draggedEl.querySelector("img").src;
+  clone.appendChild(img);
 
-        document.querySelectorAll(".elemen").forEach(el=>{
-          el.addEventListener("dragstart", (e)=>{e.dataTransfer.setData("id", el.id)});
-        });
+  const handle = document.createElement("div");
+  handle.classList.add("resize-handle");
+  clone.appendChild(handle);
 
-        elementsLayer.addEventListener("dragover", (e)=>e.preventDefault());
-        elementsLayer.addEventListener("drop", handleDrop);
+  elementsLayer.appendChild(clone);
+  makeDraggable(clone);
+  makeResizable(clone, handle);
+}
 
-        if(drawCanvas.getContext){drawCanvas.getContext("2d").lineCap='round';}
-      };
+// Desktop drop
+function handleDrop(e){
+  e.preventDefault();
+  const id = e.dataTransfer.getData("id");
+  if (!id) return;
 
-      function handleDrop(e){
-        e.preventDefault();
-        const id = e.dataTransfer.getData("id");
-        const draggedEl = document.getElementById(id);
-        if(!draggedEl) return;
-        if(petunjuk) petunjuk.style.display="none";
-        const rect = elementsLayer.getBoundingClientRect();
-        const x=e.clientX-rect.left-50;
-        const y=e.clientY-rect.top-50;
+  const rect = elementsLayer.getBoundingClientRect();
+  spawnElement(id, e.clientX - rect.left - 50, e.clientY - rect.top - 50);
+}
 
-        const clone = document.createElement("div");
-        clone.classList.add("resizable");
-        clone.style.left=`${x}px`; clone.style.top=`${y}px`; clone.style.width="100px"; clone.style.height="100px";
+elementsLayer.addEventListener("dragover", e => e.preventDefault());
+elementsLayer.addEventListener("drop", handleDrop);
 
-        const img = document.createElement("img");
-        img.src = draggedEl.querySelector("img").src; clone.appendChild(img);
+// Touch drop
+elementsLayer.addEventListener("touchend", e=>{
+  if(!draggingId) return;
+  const rect = elementsLayer.getBoundingClientRect();
+  const touch = e.changedTouches[0];
+  spawnElement(draggingId, touch.clientX - rect.left - 50, touch.clientY - rect.top - 50);
+  draggingId = null;
+});
 
-        const handle = document.createElement("div");
-        handle.classList.add("resize-handle"); clone.appendChild(handle);
+// Dragging behavior
+function makeDraggable(el){
+  let offsetX, offsetY;
 
-        elementsLayer.appendChild(clone);
-        makeDraggable(clone);
-        makeResizable(clone, handle);
-      }
+  function onMouseDown(e){
+    if (e.target.classList.contains("resize-handle")) return;
 
-      function setMode(m){
-        mode=m;
-        btnDraw.classList.toggle("active", m==="draw");
-        btnClick.classList.toggle("active", m==="click");
-        drawing=false; tempStart=null;
-        drawCanvas.onmousedown=null; drawCanvas.onmousemove=null; drawCanvas.onmouseup=null; drawCanvas.onclick=null;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
 
-        if(m==="draw"){ activateDrawMode(); drawCanvas.style.pointerEvents="auto"; elementsLayer.style.pointerEvents="none"; drawCanvas.style.zIndex=5; elementsLayer.style.zIndex=4; }
-        if(m==="click"){ activateClickMode(); drawCanvas.style.pointerEvents="none"; elementsLayer.style.pointerEvents="auto"; drawCanvas.style.zIndex=4; elementsLayer.style.zIndex=5; }
-        drawCanvas.style.cursor=m==="draw"?"crosshair":"pointer";
-      }
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  }
 
-      function undoLine(){ lines.pop(); redrawAll(); }
+  function onMouseMove(e){
+    el.style.left = e.clientX - offsetX + "px";
+    el.style.top = e.clientY - offsetY + "px";
+  }
 
-      function activateDrawMode(){
-        drawCanvas.onmousedown=(e)=>{drawing=true; const rect=drawCanvas.getBoundingClientRect(); startX=e.clientX-rect.left; startY=e.clientY-rect.top;}
-        drawCanvas.onmousemove=(e)=>{if(!drawing) return; const rect=drawCanvas.getBoundingClientRect(); const x=e.clientX-rect.left; const y=e.clientY-rect.top; redrawAll(); const ctx=drawCanvas.getContext("2d"); ctx.beginPath(); ctx.moveTo(startX,startY); ctx.lineTo(x,y); ctx.strokeStyle="#2a4d8f"; ctx.lineWidth=3; ctx.stroke();}
-        drawCanvas.onmouseup=(e)=>{if(!drawing) return; drawing=false; const rect=drawCanvas.getBoundingClientRect(); const endX=e.clientX-rect.left; const endY=e.clientY-rect.top; lines.push({x1:startX,y1:startY,x2:endX,y2:endY}); redrawAll();}
-      }
+  function onMouseUp(){
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
+  }
 
-      function activateClickMode(){
-        drawCanvas.onclick=(e)=>{
-          const rect=drawCanvas.getBoundingClientRect();
-          const x=e.clientX-rect.left; const y=e.clientY-rect.top;
-          if(!tempStart){ tempStart={x,y}; drawPoint(x,y,"#ff0000"); }
-          else{ lines.push({x1:tempStart.x,y1:tempStart.y,x2:x,y2:y}); tempStart=null; redrawAll(); }
-        }
-      }
+  el.addEventListener("mousedown", onMouseDown);
 
-      function drawPoint(x,y,color){ const ctx=drawCanvas.getContext("2d"); ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();}
-      function redrawAll(){ const ctx=drawCanvas.getContext("2d"); ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height); for(let l of lines){ctx.beginPath();ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);ctx.strokeStyle="#2a4d8f";ctx.lineWidth=3;ctx.stroke();}}
+  // Touch drag
+  el.addEventListener("touchstart", e=>{
+    const t = e.touches[0];
+    offsetX = t.clientX - el.offsetLeft;
+    offsetY = t.clientY - el.offsetTop;
+  });
 
-      function makeDraggable(el){
-        let isDragging=false, offsetX, offsetY;
-        el.addEventListener("mousedown",(e)=>{if(e.target.classList.contains("resize-handle")) return; isDragging=true; const rect=elementsLayer.getBoundingClientRect(); offsetX=e.clientX-rect.left-el.offsetLeft; offsetY=e.clientY-rect.top-el.offsetTop; el.style.zIndex=10;});
-        document.addEventListener("mousemove",(e)=>{if(!isDragging) return; const rect=elementsLayer.getBoundingClientRect(); let newX=e.clientX-rect.left-offsetX; let newY=e.clientY-rect.top-offsetY; newX=Math.max(0,Math.min(newX,elementsLayer.clientWidth-el.offsetWidth)); newY=Math.max(0,Math.min(newY,elementsLayer.clientHeight-el.offsetHeight)); el.style.left=newX+"px"; el.style.top=newY+"px";});
-        document.addEventListener("mouseup",()=>{isDragging=false; el.style.zIndex=5;});
+  el.addEventListener("touchmove", e=>{
+    const t = e.touches[0];
+    el.style.left = t.clientX - offsetX + "px";
+    el.style.top = t.clientY - offsetY + "px";
+  });
+}
 
-        // Touch support
-        el.addEventListener("touchstart",(e)=>{isDragging=true; const touch=e.touches[0]; const rect=elementsLayer.getBoundingClientRect(); offsetX=touch.clientX-rect.left-el.offsetLeft; offsetY=touch.clientY-rect.top-el.offsetTop; el.style.zIndex=10;});
-        document.addEventListener("touchmove",(e)=>{if(!isDragging) return; const touch=e.touches[0]; const rect=elementsLayer.getBoundingClientRect(); let newX=touch.clientX-rect.left-offsetX; let newY=touch.clientY-rect.top-offsetY; newX=Math.max(0,Math.min(newX,elementsLayer.clientWidth-el.offsetWidth)); newY=Math.max(0,Math.min(newY,elementsLayer.clientHeight-el.offsetHeight)); el.style.left=newX+"px"; el.style.top=newY+"px";});
-        document.addEventListener("touchend",()=>{isDragging=false; el.style.zIndex=5;});
-      }
+// Resizing
+function makeResizable(el, handle){
+  let startX, startY, startW, startH;
 
-      function makeResizable(el, handle){
-        let isResizing=false, startX,startY,startW,startH;
-        handle.addEventListener("mousedown",(e)=>{e.preventDefault(); e.stopPropagation(); isResizing=true; startX=e.clientX; startY=e.clientY; startW=parseInt(window.getComputedStyle(el).width,10); startH=parseInt(window.getComputedStyle(el).height,10);});
-        document.addEventListener("mousemove",(e)=>{if(!isResizing) return; let newW=startW+(e.clientX-startX); let newH=startH+(e.clientY-startY); newW=Math.max(60,newW); newH=Math.max(60,newH); el.style.width=newW+"px"; el.style.height=newH+"px";});
-        document.addEventListener("mouseup",()=>{isResizing=false;});
+  handle.addEventListener("mousedown", e=>{
+    e.stopPropagation();
+    startX = e.clientX;
+    startY = e.clientY;
+    startW = parseInt(getComputedStyle(el).width);
+    startH = parseInt(getComputedStyle(el).height);
 
-        // Touch support
-        handle.addEventListener("touchstart",(e)=>{e.preventDefault(); isResizing=true; const touch=e.touches[0]; startX=touch.clientX; startY=touch.clientY; startW=parseInt(window
+    document.addEventListener("mousemove", resize);
+    document.addEventListener("mouseup", stop);
+  });
+
+  function resize(e){
+    el.style.width = startW + (e.clientX - startX) + "px";
+    el.style.height = startH + (e.clientY - startY) + "px";
+  }
+
+  function stop(){
+    document.removeEventListener("mousemove", resize);
+    document.removeEventListener("mouseup", stop);
+  }
+
+  // Touch resize
+  handle.addEventListener("touchstart", e=>{
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    startW = parseInt(getComputedStyle(el).width);
+    startH = parseInt(getComputedStyle(el).height);
+  });
+
+  handle.addEventListener("touchmove", e=>{
+    const t = e.touches[0];
+    el.style.width = startW + (t.clientX - startX) + "px";
+    el.style.height = startH + (t.clientY - startY) + "px";
+  });
+}
+</script>
+
+</body>
+</html>
