@@ -13,28 +13,26 @@
       --bg1:#e3f2fd;
       --bg2:#f3f5f7;
       --card:#ffffff;
-      --muted:#777;
       --shadow:0 6px 18px rgba(38,72,126,0.08);
-      --radius:12px;
       font-family:"Poppins",system-ui;
     }
 
     html,body{margin:0;padding:0;height:100%;background:linear-gradient(135deg,var(--bg1),var(--bg2));}
 
-    .app{display:flex;flex-direction:column;min-height:100vh;padding:24px;box-sizing:border-box}
+    .app{
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      padding:24px;
+      box-sizing:border-box;
+    }
+
     .container{max-width:1100px;margin:auto;width:100%}
 
     .page{display:none}
     .active{display:block}
 
-    .app-title{text-align:center;color:var(--primary);font-size:28px}
-
-    .menu-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-      gap:24px;
-      margin-top:24px;
-    }
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;margin-top:24px;}
 
     .menu-item{
       background:var(--card);
@@ -45,64 +43,65 @@
       box-shadow:var(--shadow);
       transition:.2s;
       color:var(--primary);
+      pointer-events:auto;
     }
-
-    .menu-item:hover{background:var(--accent);color:white;transform:translateY(-6px)}
-    .menu-item img{width:70px;height:70px;object-fit:contain}
+    .menu-item:hover{background:var(--accent);color:white;transform:translateY(-6px);}
+    .menu-item img{width:70px;height:70px;object-fit:contain;pointer-events:none;}
 
     .viewer{
       width:100%;height:600px;background:black;border-radius:12px;overflow:hidden;
     }
+
     iframe{width:100%;height:100%;border:0;}
 
     .btn{
       background:var(--accent);color:white;padding:10px 16px;border:none;
-      border-radius:8px;cursor:pointer;
+      border-radius:8px;cursor:pointer;margin:3px;
     }
-    .btn.ghost{background:transparent;border:1px solid #bbb;color:var(--primary)}
+    .btn.ghost{background:transparent;border:1px solid #bbb;color:var(--primary);}
 
-    /* INTERAKTIF */
+    /* interactive */
     #canvasWrapper{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
     #canvas{
       position:relative;width:60%;min-width:300px;height:480px;background:#fff;border-radius:12px;
-      border:2px solid #ddd;overflow:hidden;
+      border:2px solid #ddd;overflow:hidden;pointer-events:auto;
     }
-    #drawCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto}
-    #elements-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto;}
 
+    #drawCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto}
+    #elements-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto}
     #petunjuk{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);color:#777;}
 
-    #canvasKunci{width:35%;min-width:200px;display:none;border:2px dashed #aaa;padding:8px;border-radius:10px;text-align:center;background:#fafafa;}
-    #canvasKunci img{width:100%;border-radius:10px}
+    #canvasKunci{
+      width:35%;min-width:200px;display:none;border:2px dashed #aaa;padding:8px;border-radius:10px;
+      text-align:center;background:#fafafa;
+    }
+    #canvasKunci img{width:100%;border-radius:10px;}
 
-    .elemen{width:80px;height:80px;border:2px solid #ccc;border-radius:8px;background:#fff;display:flex;justify-content:center;align-items:center;cursor:pointer;}
-    .elemen img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+    .elemen{
+      width:80px;height:80px;border:2px solid #ccc;border-radius:8px;background:#fff;
+      display:flex;justify-content:center;align-items:center;cursor:pointer;pointer-events:auto;
+    }
+    .elemen img{width:100%;height:100%;object-fit:contain;pointer-events:none;}
 
     .resizable{
       position:absolute;border:1px dashed #aaa;border-radius:6px;cursor:grab;touch-action:none;
+      pointer-events:auto;
     }
     .resizable img{width:100%;height:100%;object-fit:contain;pointer-events:none;}
+
     .resize-handle{
       position:absolute;width:14px;height:14px;background:var(--accent);
       border-radius:50%;bottom:0;right:0;cursor:se-resize;
     }
 
-    /* mencegah long-press save image hanya untuk gambar draggable */
-    .resizable img, .elemen img{
-      -webkit-touch-callout:none;
-      -webkit-user-select:none;user-select:none;
-    }
-
     @media(max-width:720px){
-      .viewer{height:320px;}
       #canvas{height:320px;}
+      .viewer{height:320px;}
     }
 
-    /* Horizontal scroll video */
     .video-scroll{
       display:flex;gap:20px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory;
     }
-
     .video-scroll iframe{
       width:320px;height:180px;flex-shrink:0;border-radius:12px;background:#000;scroll-snap-align:start;
     }
@@ -111,50 +110,35 @@
 
 <body>
 
-  <button id="globalBack" class="btn" style="position:fixed;top:16px;left:16px;display:none;">⬅️</button>
+  <button id="globalBack" class="btn" style="position:fixed;top:16px;left:16px;display:none;z-index:999;">
+    ⬅️
+  </button>
 
   <div class="app">
     <div class="container">
 
       <!-- DASHBOARD -->
       <section id="dashboard" class="page active">
-        <h1 class="app-title">Media Pembelajaran Interaktif</h1>
-
+        <h1>Media Pembelajaran Interaktif</h1>
         <div class="menu-grid">
-          <div class="menu-item" data-target="materi">
-            <img src="assets/icon-materi.png"><br>Materi
-          </div>
-
-          <div class="menu-item" data-target="modul">
-            <img src="assets/icon-modul.png"><br>Modul
-          </div>
-
-          <div class="menu-item" data-target="video">
-            <img src="assets/icon-video.png"><br>Video
-          </div>
-
-          <div class="menu-item" data-target="interaktif">
-            <img src="assets/icon-interaktif.png"><br>Media Interaktif
-          </div>
+          <div class="menu-item" data-target="materi"><img src="assets/icon-materi.png"><br>Materi</div>
+          <div class="menu-item" data-target="modul"><img src="assets/icon-modul.png"><br>Modul</div>
+          <div class="menu-item" data-target="video"><img src="assets/icon-video.png"><br>Video</div>
+          <div class="menu-item" data-target="interaktif"><img src="assets/icon-interaktif.png"><br>Media Interaktif</div>
         </div>
       </section>
 
       <!-- MATERI -->
       <section id="materi" class="page">
         <h2>Materi</h2>
-        <div class="viewer">
-          <iframe src="https://docs.google.com/presentation/d/e/GOOGLE_SLIDES_EMBED_URL/embed"></iframe>
-        </div>
-        <br>
+        <div class="viewer"><iframe src="assets/slide.html"></iframe></div>
         <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
       </section>
 
       <!-- MODUL -->
       <section id="modul" class="page">
         <h2>Modul</h2>
-        <div class="viewer">
-          <iframe src="assets/modul.pdf"></iframe>
-        </div><br>
+        <div class="viewer"><iframe src="assets/modul.pdf"></iframe></div>
         <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
       </section>
 
@@ -165,7 +149,7 @@
           <iframe src="https://www.youtube.com/embed/ASBNa7b-7MQ"></iframe>
           <iframe src="https://www.youtube.com/embed/aON_if40J_8"></iframe>
           <iframe src="https://www.youtube.com/embed/SJ739--Vc3A"></iframe>
-        </div><br>
+        </div>
         <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
       </section>
 
@@ -186,7 +170,7 @@
           </div>
         </div>
 
-        <br><br>
+        <br>
         <div style="text-align:center">
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
             <div class="elemen"><img src="assets/titikA.png"></div>
@@ -217,169 +201,149 @@ function showSection(id){
   pages.forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   globalBack.style.display=id==='dashboard'?'none':'block';
-
   if(id==="interaktif") initMedia();
 }
 
-menuItems.forEach(m=>m.onclick=()=>showSection(m.dataset.target));
+menuItems.forEach(m=>{
+  m.onclick=()=>showSection(m.dataset.target);
+});
 globalBack.onclick=()=>showSection('dashboard');
 
-// prevent save popup hanya pada gambar draggable
+// prevent save popup hanya pada elemen interaktif
 document.addEventListener("contextmenu", e=>{
-  if(e.target.closest(".resizable img") || e.target.closest(".elemen img"))
+  if(e.target.closest(".resizable") || e.target.closest(".elemen")){
     e.preventDefault();
+  }
 });
 
 let mediaInit=false;
 
 function initMedia(){
-  if(mediaInit) return;
+  if(mediaInit)return;
   mediaInit=true;
 
-  const canvasArea=document.getElementById("canvas");
+  const canvas=document.getElementById("canvas");
   const drawCanvas=document.getElementById("drawCanvas");
   const ctx=drawCanvas.getContext("2d");
-  const elementsLayer=document.getElementById("elements-layer");
+  const layer=document.getElementById("elements-layer");
   const petunjuk=document.getElementById("petunjuk");
   const kunci=document.getElementById("canvasKunci");
-
-  let lines=[];
-  let drawing=false,startX,startY,tempStart=null;
-  let mode="draw";
+  let lines=[],mode="draw",temp=null;
+  let drawing=false,sx,sy;
 
   function resize(){
-    const rect=canvasArea.getBoundingClientRect();
-    drawCanvas.width=rect.width;
-    drawCanvas.height=rect.height;
+    const r=canvas.getBoundingClientRect();
+    drawCanvas.width=r.width;
+    drawCanvas.height=r.height;
     redraw();
   }
-  window.addEventListener("resize",resize);
-  setTimeout(resize,100);
+  window.addEventListener("resize",resize);setTimeout(resize,100);
 
   function redraw(){
     ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
-    for(const l of lines){
-      ctx.beginPath();
-      ctx.moveTo(l.x1,l.y1);
-      ctx.lineTo(l.x2,l.y2);
-      ctx.strokeStyle="#2a4d8f";
-      ctx.lineWidth=3;
-      ctx.stroke();
-    }
+    ctx.strokeStyle="#2a4d8f";ctx.lineWidth=3;
+    lines.forEach(l=>{
+      ctx.beginPath();ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);ctx.stroke();
+    });
   }
 
-  // BUTTONS
-  document.getElementById("modeDraw").onclick=()=>modeSwitch("draw");
-  document.getElementById("modeClick").onclick=()=>modeSwitch("click");
+  document.getElementById("modeDraw").onclick=()=>{mode="draw";temp=null;}
+  document.getElementById("modeClick").onclick=()=>{mode="click";temp=null;}
   document.getElementById("undo").onclick=()=>{lines.pop();redraw();}
   document.getElementById("toggleKunci").onclick=()=>{kunci.style.display=kunci.style.display==="none"?"block":"none";}
 
-  function modeSwitch(m){
-    mode=m;tempStart=null;
-  }
-
-  // draw mode (mouse)
+  // DRAW — mouse
   drawCanvas.onmousedown=e=>{
     if(mode!=="draw")return;
     drawing=true;
     const r=drawCanvas.getBoundingClientRect();
-    startX=e.clientX-r.left;startY=e.clientY-r.top;
+    sx=e.clientX-r.left;sy=e.clientY-r.top;
   };
   drawCanvas.onmousemove=e=>{
     if(!drawing)return;
     const r=drawCanvas.getBoundingClientRect();
     const x=e.clientX-r.left,y=e.clientY-r.top;
-    redraw();
-    ctx.beginPath();
-    ctx.moveTo(startX,startY);
-    ctx.lineTo(x,y);
-    ctx.strokeStyle="#2a4d8f";
-    ctx.lineWidth=3;
-    ctx.stroke();
+    redraw();ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(x,y);ctx.stroke();
   };
   drawCanvas.onmouseup=e=>{
     if(!drawing)return;
     drawing=false;
     const r=drawCanvas.getBoundingClientRect();
-    lines.push({x1:startX,y1:startY,x2:e.clientX-r.left,y2:e.clientY-r.top});
+    lines.push({x1:sx,y1:sy,x2:e.clientX-r.left,y2:e.clientY-r.top});
     redraw();
   };
 
-  // click mode
+  // CLICK mode
   drawCanvas.onclick=e=>{
     if(mode!=="click")return;
     const r=drawCanvas.getBoundingClientRect();
     const x=e.clientX-r.left,y=e.clientY-r.top;
-    if(!tempStart){tempStart={x,y};ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fillStyle="red";ctx.fill();}
-    else{lines.push({x1:tempStart.x,y1:tempStart.y,x2:x,y2:y});tempStart=null;redraw();}
+    if(!temp){
+      temp={x,y};
+      ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fillStyle="red";ctx.fill();
+    }else{
+      lines.push({x1:temp.x,y1:temp.y,x2:x,y2:y});
+      temp=null;redraw();
+    }
   };
 
-  // DRAG elements
-  document.querySelectorAll(".elemen img").forEach(img=>{
-    img.addEventListener("pointerdown",e=>{
+  // DRAG titik
+  document.querySelectorAll(".elemen").forEach(source=>{
+    source.addEventListener("pointerdown",e=>{
       if(petunjuk)petunjuk.style.display="none";
-
-      const rect=elementsLayer.getBoundingClientRect();
+      const r=layer.getBoundingClientRect();
       const clone=document.createElement("div");
-      clone.classList.add("resizable");
-      clone.style.left=(e.clientX-rect.left-40)+"px";
-      clone.style.top=(e.clientY-rect.top-40)+"px";
+      clone.className="resizable";
+      clone.style.left=(e.clientX-r.left-40)+"px";
+      clone.style.top=(e.clientY-r.top-40)+"px";
       clone.style.width="80px";clone.style.height="80px";
-
-      const cimg=document.createElement("img");
-      cimg.src=img.src;clone.appendChild(cimg);
-
+      const im=document.createElement("img");
+      im.src=source.querySelector("img").src;
+      clone.appendChild(im);
       const h=document.createElement("div");
-      h.classList.add("resize-handle");
+      h.className="resize-handle";
       clone.appendChild(h);
-
-      elementsLayer.appendChild(clone);
+      layer.appendChild(clone);
       makeDraggable(clone);
       makeResizable(clone,h);
     });
   });
 
   function makeDraggable(el){
-    let drag=false,offX,offY;
-
+    let drag=false,ox,oy;
     el.addEventListener("pointerdown",e=>{
       drag=true;
-      const rect=elementsLayer.getBoundingClientRect();
-      offX=e.clientX-rect.left-el.offsetLeft;
-      offY=e.clientY-rect.top-el.offsetTop;
+      const r=layer.getBoundingClientRect();
+      ox=e.clientX-r.left-el.offsetLeft;
+      oy=e.clientY-r.top-el.offsetTop;
       el.setPointerCapture(e.pointerId);
     });
-
     el.addEventListener("pointermove",e=>{
       if(!drag)return;
-      const rect=elementsLayer.getBoundingClientRect();
-      let x=e.clientX-rect.left-offX;
-      let y=e.clientY-rect.top-offY;
-      x=Math.max(0,Math.min(x,elementsLayer.clientWidth-el.offsetWidth));
-      y=Math.max(0,Math.min(y,elementsLayer.clientHeight-el.offsetHeight));
+      const r=layer.getBoundingClientRect();
+      let x=e.clientX-r.left-ox;
+      let y=e.clientY-r.top-oy;
+      x=Math.max(0,Math.min(x,layer.clientWidth-el.offsetWidth));
+      y=Math.max(0,Math.min(y,layer.clientHeight-el.offsetHeight));
       el.style.left=x+"px";el.style.top=y+"px";
     });
     el.addEventListener("pointerup",()=>drag=false);
   }
 
-  function makeResizable(el,handle){
-    let resizing=false,sx,sy,sw,sh;
-
-    handle.addEventListener("pointerdown",e=>{
-      resizing=true;
-      sx=e.clientX;sy=e.clientY;
-      sw=parseInt(el.style.width);
-      sh=parseInt(el.style.height);
+  function makeResizable(el,h){
+    let rs=false,sx,sy,sw,sh;
+    h.addEventListener("pointerdown",e=>{
+      rs=true;sx=e.clientX;sy=e.clientY;
+      sw=parseInt(el.style.width);sh=parseInt(el.style.height);
       e.stopPropagation();
       el.setPointerCapture(e.pointerId);
     });
-
     el.addEventListener("pointermove",e=>{
-      if(!resizing)return;
+      if(!rs)return;
       el.style.width=Math.max(60,sw+(e.clientX-sx))+"px";
       el.style.height=Math.max(60,sh+(e.clientY-sy))+"px";
     });
-    el.addEventListener("pointerup",()=>resizing=false);
+    el.addEventListener("pointerup",()=>rs=false);
   }
 }
 </script>
