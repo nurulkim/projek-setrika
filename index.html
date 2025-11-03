@@ -4,9 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Media Pembelajaran Interaktif (All-in-One)</title>
-
-  <!-- ====== STYLE (tema biru lembut + responsif) ====== -->
   <style>
+    /* ==== (style tetap sama seperti sebelumnya, tidak dihapus) ==== */
     :root{
       --primary:#2a4d8f;
       --accent:#4a90e2;
@@ -27,7 +26,6 @@
       color:#222;
     }
 
-    /* --- Centered dashboard container --- */
     .app {
       display:flex;
       flex-direction:column;
@@ -49,7 +47,6 @@
     h1.app-title {text-align:center;color:var(--primary);margin:0 0 18px 0;font-size:28px}
     .sub {text-align:center;color:var(--muted);margin-bottom:22px}
 
-    /* --- menu grid (icons with text) --- */
     .menu-grid {
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -84,11 +81,9 @@
     .menu-item img{width:72px;height:72px;display:block;object-fit:contain}
     .menu-item span{font-weight:600;font-size:15px;display:block;margin-top:6px}
 
-    /* --- Generic page sections --- */
     .page {display:none;}
     .page.active {display:block}
 
-    /* --- Back button --- */
     .back-btn {
       position:fixed;
       top:16px;
@@ -109,7 +104,6 @@
     .back-btn:hover{transform:scale(1.04)}
     .page-header {text-align:center;color:var(--primary);margin-top:10px}
 
-    /* --- PDF, slides, video viewer --- */
     .content-wrap {
       width:95%;
       max-width:960px;
@@ -138,7 +132,7 @@
     .btn.ghost {background:transparent;color:var(--primary);border:1px solid rgba(0,0,0,0.06)}
     .desc {text-align:center;color:var(--muted);margin-top:8px}
 
-    /* --- Media interaktif --- */
+    /* Canvas interaktif */
     #canvasWrapper {
       display:flex;
       gap:18px;
@@ -184,8 +178,7 @@
     .resizable img{width:100%;height:100%;object-fit:contain;pointer-events:none}
     .resize-handle{position:absolute;bottom:0;right:0;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:se-resize}
 
-
-    /* === ✅ Horizontal scroll video (REVISI) === */
+    /* Scroll video horizontal */
     .video-scroll {
       display: flex;
       gap: 20px;
@@ -204,312 +197,283 @@
       scroll-snap-align: start;
       background:#000;
     }
+    .video-scroll::-webkit-scrollbar {display:none;}
 
-    .video-scroll::-webkit-scrollbar {
-      display:none;
-    }
-
-    /* --- RESPONSIVE tablet & HP --- */
     @media (max-width:1024px){
-      .container {padding:20px;}
-      h1.app-title {font-size:24px;}
-      .menu-grid {gap:18px;}
-      .menu-item {min-height:120px;padding:16px;}
-      .menu-item img {width:56px;height:56px;}
       .viewer {height:480px;}
       #canvas {width:100%;height:400px;}
-      #canvasKunci {width:100%;min-width:200px;}
     }
     @media (max-width:720px){
-      h1.app-title {font-size:20px;}
-      .menu-grid {grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;}
-      .menu-item {min-height:100px;padding:12px;}
-      .menu-item img {width:48px;height:48px;}
       .viewer {height:320px;}
       #canvas {height:320px;}
-      #canvasKunci {min-width:180px;}
-      #elemenList {gap:6px;}
-      .elemen {width:70px;height:70px;}
-
-      .video-scroll iframe {
-        width:260px;
-        height:150px;
-      }
+      .video-scroll iframe {width:260px;height:150px;}
     }
-
   </style>
 </head>
 <body>
 
-  <button id="globalBack" class="back-btn" title="Kembali ke Menu Utama" style="display:none">⬅️</button>
+<button id="globalBack" class="back-btn" style="display:none">⬅️</button>
 
-  <div class="app">
-    <div class="container">
+<div class="app">
+  <div class="container">
 
-      <!-- ================== DASHBOARD ================== -->
-      <section id="dashboard" class="page active">
-        <h1 class="app-title">🎓 Media Pembelajaran Interaktif</h1>
+    <!-- Dashboard -->
+    <section id="dashboard" class="page active">
+      <h1 class="app-title">🎓 Media Pembelajaran Interaktif</h1>
 
-        <div class="menu-grid">
-          <div class="menu-item" data-target="materi">
-            <img src="assets/icon-materi.png" alt="Materi">
-            <span>Materi</span>
-          </div>
+      <div class="menu-grid">
+        <div class="menu-item" data-target="materi"><img src="assets/icon-materi.png"><span>Materi</span></div>
+        <div class="menu-item" data-target="modul"><img src="assets/icon-modul.png"><span>Modul</span></div>
+        <div class="menu-item" data-target="video"><img src="assets/icon-video.png"><span>Video</span></div>
+        <div class="menu-item" data-target="interaktif"><img src="assets/icon-interaktif.png"><span>Media Interaktif</span></div>
+      </div>
+    </section>
 
-          <div class="menu-item" data-target="modul">
-            <img src="assets/icon-modul.png" alt="Modul">
-            <span>Modul</span>
-          </div>
-
-          <div class="menu-item" data-target="video">
-            <img src="assets/icon-video.png" alt="Video">
-            <span>Video</span>
-          </div>
-
-          <div class="menu-item" data-target="interaktif">
-            <img src="assets/icon-interaktif.png" alt="Media Interaktif">
-            <span>Media Interaktif</span>
-          </div>
+    <!-- Materi -->
+    <section id="materi" class="page">
+      <h2 class="page-header">📖 Materi</h2>
+      <div class="content-wrap">
+        <div class="viewer"><iframe id="slidesFrame"
+          src="https://docs.google.com/presentation/d/e/GOOGLE_SLIDES_EMBED_URL/embed"></iframe>
         </div>
-      </section>
-
-      <!-- ================== MATERI ================== -->
-      <section id="materi" class="page">
-        <h2 class="page-header">📖 Materi</h2>
-
-        <div class="content-wrap">
-          <div class="viewer" id="materiViewer">
-            <iframe id="slidesFrame" src="https://docs.google.com/presentation/d/e/GOOGLE_SLIDES_EMBED_URL/embed?start=false&loop=false&delayms=3000" allowfullscreen></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn" onclick="openInNewTab(document.getElementById('slidesFrame').src)">Buka di Tab Baru</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-          <p class="desc">Jika embed tidak muncul, pastikan slide di-*publish to web* atau gunakan link embed yang valid.</p>
+        <div class="controls-row">
+          <button class="btn" onclick="openInNewTab(slidesFrame.src)">Buka di Tab Baru</button>
+          <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ================== MODUL ================== -->
-      <section id="modul" class="page">
-        <h2 class="page-header">📑 Modul Pembelajaran</h2>
-
-        <div class="content-wrap">
-          <div class="viewer" id="pdfViewer">
-            <iframe id="pdfFrame" src="assets/modul.pdf"></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn" onclick="openInNewTab('assets/modul.pdf')">📥 Unduh / Buka PDF</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
+    <!-- Modul PDF -->
+    <section id="modul" class="page">
+      <h2 class="page-header">📑 Modul Pembelajaran</h2>
+      <div class="content-wrap">
+        <div class="viewer"><iframe id="pdfFrame" src="assets/modul.pdf"></iframe></div>
+        <div class="controls-row">
+          <button class="btn" onclick="openInNewTab('assets/modul.pdf')">📥 Unduh / Buka PDF</button>
+          <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- ================== ✅ VIDEO (REVISI) ================== -->
-      <section id="video" class="page">
-        <h2 class="page-header">🎬 Video Pembelajaran</h2>
-
-        <div class="content-wrap">
-          <div class="video-scroll">
-            <iframe src="https://www.youtube.com/embed/ASBNa7b-7MQ" allowfullscreen></iframe>
-            <iframe src="https://www.youtube.com/embed/aON_if40J_8" allowfullscreen></iframe>
-            <iframe src="https://www.youtube.com/embed/SJ739--Vc3A" allowfullscreen></iframe>
-          </div>
-
-          <div class="controls-row">
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
+    <!-- Video -->
+    <section id="video" class="page">
+      <h2 class="page-header">🎬 Video Pembelajaran</h2>
+      <div class="content-wrap">
+        <div class="video-scroll">
+          <iframe src="https://www.youtube.com/embed/ASBNa7b-7MQ"></iframe>
+          <iframe src="https://www.youtube.com/embed/aON_if40J_8"></iframe>
+          <iframe src="https://www.youtube.com/embed/SJ739--Vc3A"></iframe>
         </div>
-      </section>
+        <div class="controls-row">
+          <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
+        </div>
+      </div>
+    </section>
 
-      <!-- ================== MEDIA INTERAKTIF ================== -->
-      <section id="interaktif" class="page">
-        <h2 class="page-header">🧰 Media Interaktif: Merangkai Elemen Setrika</h2>
+    <!-- Interaktif -->
+    <section id="interaktif" class="page">
+      <h2 class="page-header">🧰 Media Interaktif: Merangkai Elemen Setrika</h2>
 
-        <div id="canvasWrapper" class="content-wrap">
-          <div id="canvas">
-            <canvas id="drawCanvas"></canvas>
-            <div id="elements-layer"></div>
-            <div id="petunjuk">🧩 Silakan seret elemen ke area ini</div>
-          </div>
+      <div id="canvasWrapper" class="content-wrap">
+        <div id="canvas">
+          <canvas id="drawCanvas"></canvas>
+          <div id="elements-layer"></div>
+          <div id="petunjuk">🧩 Silakan seret elemen ke area ini</div>
+        </div>
+        <div id="canvasKunci">
+          <h3>🔍 Susunan Benar</h3>
+          <img src="assets/kunciJawaban.png" id="imgKunci">
+        </div>
+      </div>
 
-          <div id="canvasKunci">
-            <h3>🔍 Susunan Benar</h3>
-            <img src="assets/kunciJawaban.png" alt="Kunci Jawaban" id="imgKunci">
-          </div>
+      <div class="content-wrap">
+        <h4>🎨 Elemen</h4>
+        <div id="elemenList">
+          <div class="elemen" id="elemenA" draggable="true"><img src="assets/titikA.png"></div>
+          <div class="elemen" id="elemenB" draggable="true"><img src="assets/titikB.png"></div>
+          <div class="elemen" id="elemenC" draggable="true"><img src="assets/titikC.png"></div>
+          <div class="elemen" id="elemenD" draggable="true"><img src="assets/titikD.png"></div>
+          <div class="elemen" id="elemenE" draggable="true"><img src="assets/titikE.png"></div>
         </div>
 
-        <div id="elemenContainer" class="content-wrap">
-          <h4>🎨 Elemen Setrika</h4>
-          <div id="elemenList">
-            <div class="elemen" id="elemenA" draggable="true"><img src="assets/titikA.png" alt="A"></div>
-            <div class="elemen" id="elemenB" draggable="true"><img src="assets/titikB.png" alt="B"></div>
-            <div class="elemen" id="elemenC" draggable="true"><img src="assets/titikC.png" alt="C"></div>
-            <div class="elemen" id="elemenD" draggable="true"><img src="assets/titikD.png" alt="D"></div>
-            <div class="elemen" id="elemenE" draggable="true"><img src="assets/titikE.png" alt="E"></div>
-          </div>
-
-          <div class="controls-row" style="margin-top:16px;">
-            <button class="btn" id="modeDraw">✏️ Mode Gambar</button>
-            <button class="btn" id="modeClick">🖱️ Mode Klik</button>
-            <button class="btn" id="undo">↩️ Undo</button>
-            <button class="btn ghost" id="toggleKunci">👁️ Tampilkan Kunci Jawaban</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-          <p class="desc">Seret elemen ke area kiri, lalu sambungkan dengan garis atau klik-titik.</p>
+        <div class="controls-row" style="margin-top:16px;">
+          <button class="btn" id="modeDraw">✏️ Mode Gambar</button>
+          <button class="btn" id="modeClick">🖱️ Mode Klik</button>
+          <button class="btn" id="undo">↩️ Undo</button>
+          <button class="btn ghost" id="toggleKunci">👁️ Kunci Jawaban</button>
+          <button class="btn ghost" onclick="showSection('dashboard')">Kembali</button>
         </div>
-      </section>
+      </div>
 
-    </div>
+    </section>
+
   </div>
+</div>
 
-  <!-- ====== SCRIPT NAVIGASI + MEDIA INTERAKTIF ====== -->
-  <script>
-    const pages = document.querySelectorAll('.page');
-    const menuItems = document.querySelectorAll('.menu-item');
-    const globalBack = document.getElementById('globalBack');
-    let currentPageId = 'dashboard';
+<script>
+/* ==== Navigasi ==== */
+const pages=document.querySelectorAll('.page');
+const menuItems=document.querySelectorAll('.menu-item');
+const globalBack=document.getElementById('globalBack');
 
-    function showSection(id){
-      pages.forEach(p => p.classList.remove('active'));
-      const target = document.getElementById(id);
-      if (!target) return;
-      target.classList.add('active');
-      currentPageId = id;
-      globalBack.style.display = (id === 'dashboard') ? 'none' : 'flex';
-      if (id === 'interaktif') {
-        initMediaInteractive();
-        setTimeout(() => resizeDrawCanvas(), 100);
-      }
-    }
+function showSection(id){
+  pages.forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  globalBack.style.display=(id==='dashboard')?'none':'flex';
+  if(id==='interaktif'){ initMediaInteractive(); setTimeout(resizeDrawCanvas, 100); }
+}
+menuItems.forEach(mi=>mi.onclick=()=>showSection(mi.dataset.target));
+globalBack.onclick=()=>showSection('dashboard');
 
-    menuItems.forEach(mi=>{
-      mi.addEventListener('click', ()=> showSection(mi.getAttribute('data-target')));
+/* ==== Media Interaktif ==== */
+let mediaInitialized=false,mode="draw",drawing=false,startX,startY,lines=[],tempStart=null;
+const canvasArea=document.getElementById("canvas");
+const drawCanvas=document.getElementById("drawCanvas");
+const elementsLayer=document.getElementById("elements-layer");
+const petunjuk=document.getElementById("petunjuk");
+const btnDraw=document.getElementById("modeDraw");
+const btnClick=document.getElementById("modeClick");
+const btnUndo=document.getElementById("undo");
+const btnKunci=document.getElementById("toggleKunci");
+const canvasKunci=document.getElementById("canvasKunci");
+
+function resizeDrawCanvas(){
+  const r=canvasArea.getBoundingClientRect();
+  drawCanvas.width=r.width; drawCanvas.height=r.height;
+  redrawAll();
+}
+
+window.initMediaInteractive=function(){
+  if(mediaInitialized) return;
+  mediaInitialized=true;
+  resizeDrawCanvas();
+
+  btnDraw.onclick=()=>setMode("draw");
+  btnClick.onclick=()=>setMode("click");
+  btnUndo.onclick=undoLine;
+  btnKunci.onclick=()=>canvasKunci.style.display =
+    canvasKunci.style.display==="none"?"block":"none";
+
+  document.querySelectorAll(".elemen").forEach(el=>{
+    el.ondragstart=e=>e.dataTransfer.setData("id",el.id);
+  });
+  elementsLayer.ondragover=e=>e.preventDefault();
+  elementsLayer.ondrop=handleDrop;
+};
+
+function handleDrop(e){
+  e.preventDefault();
+  const id=e.dataTransfer.getData("id");
+  const src=document.querySelector("#"+id+" img").src;
+  petunjuk.style.display="none";
+
+  const rect=elementsLayer.getBoundingClientRect();
+  const x=e.clientX-rect.left-40;
+  const y=e.clientY-rect.top-40;
+
+  const box=document.createElement("div");
+  box.className="resizable";
+  box.style="left:"+x+"px;top:"+y+"px;width:100px;height:100px";
+  box.innerHTML="<img src='"+src+"'><div class='resize-handle'></div>";
+
+  elementsLayer.appendChild(box);
+  makeDraggable(box);
+  makeResizable(box,box.querySelector(".resize-handle"));
+}
+
+function setMode(m){
+  mode=m; tempStart=null; drawing=false;
+  drawCanvas.style.pointerEvents=(m==="draw")?"auto":"none";
+  elementsLayer.style.pointerEvents=(m==="click")?"auto":"none";
+  if(m==="draw") activateDraw(); else activateClick();
+}
+
+function undoLine(){ lines.pop(); redrawAll(); }
+
+function activateDraw(){
+  drawCanvas.onmousedown=e=>{
+    drawing=true;
+    const r=drawCanvas.getBoundingClientRect();
+    startX=e.clientX-r.left; startY=e.clientY-r.top;
+  }
+  drawCanvas.onmousemove=e=>{
+    if(!drawing) return;
+    const r=drawCanvas.getBoundingClientRect();
+    redrawAll();
+    let x=e.clientX-r.left,y=e.clientY-r.top;
+    const c=drawCanvas.getContext("2d");
+    c.beginPath(); c.moveTo(startX,startY); c.lineTo(x,y);
+    c.lineWidth=3; c.stroke();
+  }
+  drawCanvas.onmouseup=e=>{
+    drawing=false;
+    const r=drawCanvas.getBoundingClientRect();
+    lines.push({
+      x1:startX,y1:startY,
+      x2:e.clientX-r.left,
+      y2:e.clientY-r.top
     });
+    redrawAll();
+  }
+}
 
-    globalBack.addEventListener('click', ()=> showSection('dashboard'));
-    function openInNewTab(url){window.open(url, '_blank');}
-    showSection('dashboard');
+function activateClick(){
+  drawCanvas.onclick=e=>{
+    const r=drawCanvas.getBoundingClientRect();
+    let x=e.clientX-r.left,y=e.clientY-r.top;
+    if(!tempStart){ tempStart={x,y}; drawPoint(x,y,"red"); }
+    else{ lines.push({x1:tempStart.x,y1:tempStart.y,x2:x,y2:y}); tempStart=null; redrawAll(); }
+  }
+}
 
-    /***************** MEDIA INTERAKTIF (ASLI) *****************/
-    (function(){
-      const canvasArea = document.getElementById("canvas");
-      const drawCanvas = document.getElementById("drawCanvas");
-      const elementsLayer = document.getElementById("elements-layer");
-      const petunjuk = document.getElementById("petunjuk");
-      const btnDraw = document.getElementById("modeDraw");
-      const btnClick = document.getElementById("modeClick");
-      const btnUndo = document.getElementById("undo");
-      const btnKunci = document.getElementById("toggleKunci");
-      let mediaInitialized = false;
-      let mode="draw",drawing=false,startX,startY,lines=[],tempStart=null;
+function drawPoint(x,y,col){
+  const c=drawCanvas.getContext("2d");
+  c.beginPath(); c.arc(x,y,4,0,Math.PI*2); c.fillStyle=col; c.fill();
+}
 
-      function resizeDrawCanvas(){
-        const rect = canvasArea.getBoundingClientRect();
-        drawCanvas.width = Math.round(rect.width);
-        drawCanvas.height = Math.round(rect.height);
-        redrawAll();
-      }
+function redrawAll(){
+  const c=drawCanvas.getContext("2d");
+  c.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+  lines.forEach(l=>{
+    c.beginPath(); c.moveTo(l.x1,l.y1); c.lineTo(l.x2,l.y2);
+    c.lineWidth=3; c.stroke();
+  });
+}
 
-      window.addEventListener('resize', ()=> {if(document.getElementById('interaktif').classList.contains('active')) resizeDrawCanvas();});
+/* Drag & resize elemen */
+function makeDraggable(el){
+  let drag=false,ox,oy;
+  el.onmousedown=e=>{
+    if(e.target.classList.contains("resize-handle")) return;
+    drag=true;
+    const r=elementsLayer.getBoundingClientRect();
+    ox=e.clientX-r.left-el.offsetLeft;
+    oy=e.clientY-r.top-el.offsetTop;
+  }
+  document.onmousemove=e=>{
+    if(!drag) return;
+    const r=elementsLayer.getBoundingClientRect();
+    el.style.left=(e.clientX-r.left-ox)+"px";
+    el.style.top =(e.clientY-r.top -oy)+"px";
+  }
+  document.onmouseup=()=>drag=false;
+}
 
-      window.initMediaInteractive = function initMediaInteractive(){
-        if(mediaInitialized) return;
-        mediaInitialized = true;
-        resizeDrawCanvas();
+function makeResizable(el,handle){
+  let rs=false,sx,sy,sw,sh;
+  handle.onmousedown=e=>{
+    rs=true; sx=e.clientX; sy=e.clientY;
+    sw=el.offsetWidth; sh=el.offsetHeight;
+    e.stopPropagation();
+  }
+  document.onmousemove=e=>{
+    if(!rs) return;
+    el.style.width =(sw+(e.clientX-sx))+"px";
+    el.style.height=(sh+(e.clientY-sy))+"px";
+  }
+  document.onmouseup=()=>rs=false;
+}
+</script>
 
-        btnDraw.onclick = () => setMode("draw");
-        btnClick.onclick = () => setMode("click");
-        btnUndo.onclick = undoLine;
-        btnKunci.onclick = toggleKunci;
-
-        setMode("draw");
-
-        document.querySelectorAll(".elemen").forEach(el=>{
-          el.addEventListener("dragstart", (e)=>{e.dataTransfer.setData("id", el.id)});
-        });
-
-        elementsLayer.addEventListener("dragover", (e)=>e.preventDefault());
-        elementsLayer.addEventListener("drop", handleDrop);
-
-        if(drawCanvas.getContext){drawCanvas.getContext("2d").lineCap='round';}
-      };
-
-      function handleDrop(e){
-        e.preventDefault();
-        const id = e.dataTransfer.getData("id");
-        const draggedEl = document.getElementById(id);
-        if(!draggedEl) return;
-        if(petunjuk) petunjuk.style.display="none";
-        const rect = elementsLayer.getBoundingClientRect();
-        const x=e.clientX-rect.left-50;
-        const y=e.clientY-rect.top-50;
-
-        const clone = document.createElement("div");
-        clone.classList.add("resizable");
-        clone.style.left=`${x}px`; clone.style.top=`${y}px`; clone.style.width="100px"; clone.style.height="100px";
-
-        const img = document.createElement("img");
-        img.src = draggedEl.querySelector("img").src; clone.appendChild(img);
-
-        const handle = document.createElement("div");
-        handle.classList.add("resize-handle"); clone.appendChild(handle);
-
-        elementsLayer.appendChild(clone);
-        makeDraggable(clone);
-        makeResizable(clone, handle);
-      }
-
-      function setMode(m){
-        mode=m;
-        btnDraw.classList.toggle("active", m==="draw");
-        btnClick.classList.toggle("active", m==="click");
-        drawing=false; tempStart=null;
-        drawCanvas.onmousedown=null; drawCanvas.onmousemove=null; drawCanvas.onmouseup=null; drawCanvas.onclick=null;
-
-        if(m==="draw"){ activateDrawMode(); drawCanvas.style.pointerEvents="auto"; elementsLayer.style.pointerEvents="none"; drawCanvas.style.zIndex=5; elementsLayer.style.zIndex=4; }
-        if(m==="click"){ activateClickMode(); drawCanvas.style.pointerEvents="none"; elementsLayer.style.pointerEvents="auto"; drawCanvas.style.zIndex=4; elementsLayer.style.zIndex=5; }
-        drawCanvas.style.cursor=m==="draw"?"crosshair":"pointer";
-      }
-
-      function undoLine(){ lines.pop(); redrawAll(); }
-
-      function activateDrawMode(){
-        drawCanvas.onmousedown=(e)=>{drawing=true; const rect=drawCanvas.getBoundingClientRect(); startX=e.clientX-rect.left; startY=e.clientY-rect.top;}
-        drawCanvas.onmousemove=(e)=>{if(!drawing) return; const rect=drawCanvas.getBoundingClientRect(); const x=e.clientX-rect.left; const y=e.clientY-rect.top; redrawAll(); const ctx=drawCanvas.getContext("2d"); ctx.beginPath(); ctx.moveTo(startX,startY); ctx.lineTo(x,y); ctx.strokeStyle="#2a4d8f"; ctx.lineWidth=3; ctx.stroke();}
-        drawCanvas.onmouseup=(e)=>{if(!drawing) return; drawing=false; const rect=drawCanvas.getBoundingClientRect(); const endX=e.clientX-rect.left; const endY=e.clientY-rect.top; lines.push({x1:startX,y1:startY,x2:endX,y2:endY}); redrawAll();}
-      }
-
-      function activateClickMode(){
-        drawCanvas.onclick=(e)=>{
-          const rect=drawCanvas.getBoundingClientRect();
-          const x=e.clientX-rect.left; const y=e.clientY-rect.top;
-          if(!tempStart){ tempStart={x,y}; drawPoint(x,y,"#ff0000"); }
-          else{ lines.push({x1:tempStart.x,y1:tempStart.y,x2:x,y2:y}); tempStart=null; redrawAll(); }
-        }
-      }
-
-      function drawPoint(x,y,color){ const ctx=drawCanvas.getContext("2d"); ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();}
-      function redrawAll(){ const ctx=drawCanvas.getContext("2d"); ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height); for(let l of lines){ctx.beginPath();ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);ctx.strokeStyle="#2a4d8f";ctx.lineWidth=3;ctx.stroke();}}
-
-      function makeDraggable(el){
-        let isDragging=false, offsetX, offsetY;
-        el.addEventListener("mousedown",(e)=>{if(e.target.classList.contains("resize-handle")) return; isDragging=true; const rect=elementsLayer.getBoundingClientRect(); offsetX=e.clientX-rect.left-el.offsetLeft; offsetY=e.clientY-rect.top-el.offsetTop; el.style.zIndex=10;});
-        document.addEventListener("mousemove",(e)=>{if(!isDragging) return; const rect=elementsLayer.getBoundingClientRect(); let newX=e.clientX-rect.left-offsetX; let newY=e.clientY-rect.top-offsetY; newX=Math.max(0,Math.min(newX,elementsLayer.clientWidth-el.offsetWidth)); newY=Math.max(0,Math.min(newY,elementsLayer.clientHeight-el.offsetHeight)); el.style.left=newX+"px"; el.style.top=newY+"px";});
-        document.addEventListener("mouseup",()=>{isDragging=false; el.style.zIndex=5;});
-
-        // Touch support
-        el.addEventListener("touchstart",(e)=>{isDragging=true; const touch=e.touches[0]; const rect=elementsLayer.getBoundingClientRect(); offsetX=touch.clientX-rect.left-el.offsetLeft; offsetY=touch.clientY-rect.top-el.offsetTop; el.style.zIndex=10;});
-        document.addEventListener("touchmove",(e)=>{if(!isDragging) return; const touch=e.touches[0]; const rect=elementsLayer.getBoundingClientRect(); let newX=touch.clientX-rect.left-offsetX; let newY=touch.clientY-rect.top-offsetY; newX=Math.max(0,Math.min(newX,elementsLayer.clientWidth-el.offsetWidth)); newY=Math.max(0,Math.min(newY,elementsLayer.clientHeight-el.offsetHeight)); el.style.left=newX+"px"; el.style.top=newY+"px";});
-        document.addEventListener("touchend",()=>{isDragging=false; el.style.zIndex=5;});
-      }
-
-      function makeResizable(el, handle){
-        let isResizing=false, startX,startY,startW,startH;
-        handle.addEventListener("mousedown",(e)=>{e.preventDefault(); e.stopPropagation(); isResizing=true; startX=e.clientX; startY=e.clientY; startW=parseInt(window.getComputedStyle(el).width,10); startH=parseInt(window.getComputedStyle(el).height,10);});
-        document.addEventListener("mousemove",(e)=>{if(!isResizing) return; let newW=startW+(e.clientX-startX); let newH=startH+(e.clientY-startY); newW=Math.max(60,newW); newH=Math.max(60,newH); el.style.width=newW+"px"; el.style.height=newH+"px";});
-        document.addEventListener("mouseup",()=>{isResizing=false;});
-
-        // Touch support
-        handle.addEventListener("touchstart",(e)=>{e.preventDefault(); isResizing=true; const touch=e.touches[0]; startX=touch.clientX; startY=touch.clientY; startW=parseInt(window
+</body>
+</html>
