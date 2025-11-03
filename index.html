@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Media Pembelajaran Interaktif (All-in-One)</title>
+
+  <!-- ====== STYLE (satu tema seragam biru lembut) ====== -->
+  <style>
+    :root{
+      --primary:#2a4d8f;
+      --accent:#4a90e2;
+      --bg1: #e3f2fd;
+      --bg2: #f3f5f7;
+      --card:#ffffff;
+      --muted:#777;
+      --shadow: 0 6px 18px rgba(38,72,126,0.08);
+      --radius:12px;
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{height:100%;margin:0;padding:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#222}
+    a{color:inherit;text-decoration:none}
+
+    /* --- Centered dashboard container --- */
+    .app {
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      box-sizing:border-box;
+    }
+
+    .container {
+      width:100%;
+      max-width:1100px;
+      margin:0 auto;
+      padding:30px;
+      background:transparent;
+      box-sizing:border-box;
+    }
+
+    h1.app-title {text-align:center;color:var(--primary);margin:0 0 18px 0;font-size:28px}
+    .sub {text-align:center;color:var(--muted);margin-bottom:22px}
+
+    /* --- menu grid (icons with text below) --- */
+    .menu-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+      gap:28px;
+      align-items:stretch;
+    }
+
+    .menu-item {
+      background:var(--card);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:22px 12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      transition:transform .22s ease, box-shadow .22s ease, background .22s;
+      color:var(--primary);
+      text-align:center;
+      min-height:150px;
+    }
+
+    .menu-item:hover{
+      transform:translateY(-8px);
+      box-shadow:0 14px 30px rgba(38,72,126,0.12);
+      background:var(--accent);
+      color:#fff;
+    }
+
+    .menu-item img{width:72px;height:72px;display:block;object-fit:contain}
+    .menu-item span{font-weight:600;font-size:15px;display:block;margin-top:6px}
+
+    /* --- Generic page sections (hidden/shown) --- */
+    .page {display:none;}
+    .page.active {display:block}
+
+    /* --- Back button (fixed-ish) --- */
+    .back-btn {
+      position:fixed;
+      top:16px;
+      left:16px;
+      width:48px;height:48px;
+      border-radius:50%;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 6px 18px rgba(0,0,0,0.12);
+      cursor:pointer;
+      z-index:999;
+      font-size:18px;
+    }
+    .back-btn:hover{transform:scale(1.04)}
+    .page-header {text-align:center;color:var(--primary);margin-top:10px}
+
+    /* --- PDF viewer, slides, video containers --- */
+    .content-wrap {
+      width:95%;
+      max-width:960px;
+      margin:20px auto;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      box-sizing:border-box;
+    }
+
+    .viewer {
+      width:100%;
+      height:640px;
+      border-radius:10px;
+      overflow:hidden;
+      background:#000;
+    }
+    .viewer iframe{width:100%;height:100%;border:0;display:block}
+
+    .controls-row {display:flex;gap:10px;align-items:center;justify-content:center;margin-top:14px}
+    .btn {
+      background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;
+      box-shadow:0 6px 18px rgba(74,144,226,0.12)
+    }
+    .btn.ghost {background:transparent;color:var(--primary);border:1px solid rgba(0,0,0,0.06)}
+    .desc {text-align:center;color:var(--muted);margin-top:8px}
+
+    @media (max-width:720px){
+      .viewer{height:420px}
+      .menu-item{min-height:130px;padding:16px}
+      .menu-item img{width:56px;height:56px}
+    }
+
+    /* --- Styles specifically for the media-interactive area (reuse from your earlier CSS, adjusted) --- */
+    #canvasWrapper {
+      display:flex;
+      gap:18px;
+      align-items:flex-start;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    #canvas {
+      position:relative;
+      width:65%;
+      min-width:320px;
+      height:520px;
+      border:2px solid #ccc;
+      border-radius:12px;
+      background:#fff;
+      overflow:hidden;
+    }
+
+    #drawCanvas {
+      position:absolute;top:0;left:0;width:100%;height:100%;background:transparent;z-index:4;
+    }
+
+    #elements-layer {
+      position:absolute;top:0;left:0;width:100%;height:100%;z-index:5;
+    }
+
+    #petunjuk {
+      position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);color:#777;font-size:16px;text-align:center;
+    }
+
+    #canvasKunci {width:30%;min-width:220px;border:2px dashed #aaa;border-radius:12px;padding:10px;background:#fafafa;text-align:center;  display: none;}
+    #canvasKunci img {width:100%;max-height:480px;object-fit:contain;border-radius:8px }
+
+    #elemenContainer {margin-top:16px;width:100%;display:flex;flex-direction:column;align-items:center}
+    #elemenList {display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+
+    .elemen {width:90px;height:90px;border:2px solid #ccc;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:grab}
+    .elemen img {width:80%;height:80%;object-fit:contain}
+
+    .resizable {position:absolute;border:1px dashed #aaa;border-radius:6px;background:transparent;cursor:move}
+    .resizable img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+    .resize-handle{position:absolute;bottom:0;right:0;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:se-resize}
+
+  </style>
+</head>
+<body>
+
+  <!-- Back button (reused per-section) -->
+  <button id="globalBack" class="back-btn" title="Kembali ke Menu Utama" style="display:none">⬅️</button>
+
+  <div class="app">
+    <div class="container">
+
+      <!-- ================== DASHBOARD (default visible) ================== -->
+      <section id="dashboard" class="page active">
+        <h1 class="app-title">🎓 Media Pembelajaran Interaktif</h1>
+
+        <div class="menu-grid" aria-hidden="false">
+          <div class="menu-item" data-target="materi">
+            <img src="assets/icon-materi.png" alt="Materi">
+            <span>Materi</span>
+          </div>
+
+          <div class="menu-item" data-target="modul">
+            <img src="assets/icon-modul.png" alt="Modul">
+            <span>Modul</span>
+          </div>
+
+          <div class="menu-item" data-target="video">
+            <img src="assets/icon-video.png" alt="Video">
+            <span>Video</span>
+          </div>
+
+          <div class="menu-item" data-target="interaktif">
+            <img src="assets/icon-interaktif.png" alt="Media Interaktif">
+            <span>Media Interaktif</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== MATERI (Google Slides embed) ================== -->
+      <section id="materi" class="page">
+        <h2 class="page-header">📖 Materi</h2>
+
+        <div class="content-wrap">
+          <div class="viewer" id="materiViewer">
+            <!-- Ganti URL ini dengan link embed Google Slides kamu -->
+            <iframe id="slidesFrame" src="https://docs.google.com/presentation/d/e/GOOGLE_SLIDES_EMBED_URL/embed?start=false&loop=false&delayms=3000" allowfullscreen></iframe>
+          </div>
+
+          <div class="controls-row">
+            <button class="btn" onclick="openInNewTab(document.getElementById('slidesFrame').src)">Buka di Tab Baru</button>
+            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
+          </div>
+          <p class="desc">Jika embed tidak muncul, pastikan slide di-*publish to web* atau gunakan link embed yang valid.</p>
+        </div>
+      </section>
+
+      <!-- ================== MODUL (PDF viewer) ================== -->
+      <section id="modul" class="page">
+        <h2 class="page-header">📑 Modul Pembelajaran</h2>
+
+        <div class="content-wrap">
+          <div class="viewer" id="pdfViewer">
+            <iframe id="pdfFrame" src="assets/modul.pdf"></iframe>
+          </div>
+
+          <div class="controls-row">
+            <button class="btn" onclick="openInNewTab('assets/modul.pdf')">📥 Unduh / Buka PDF</button>
+            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== VIDEO (YouTube embeds) ================== -->
+      <section id="video" class="page">
+        <h2 class="page-header">🎬 Video Pembelajaran</h2>
+
+        <div class="content-wrap">
+          <div class="viewer" id="videoList">
+            <!-- Contoh: ganti ID dengan ID YouTube yang diinginkan -->
+            <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID_1" allowfullscreen></iframe>
+          </div>
+
+          <div class="controls-row">
+            <button class="btn" onclick="openInNewTab('https://www.youtube.com/watch?v=YOUR_YOUTUBE_VIDEO_ID_1')">Buka di YouTube</button>
+            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== MEDIA INTERAKTIF (your original code integrated) ================== -->
+      <section id="interaktif" class="page">
+        <!-- back icon in the section too (redundant with globalBack) -->
+        <h2 class="page-header">🧰 Media Interaktif: Merangkai Elemen Setrika</h2>
+
+        <div id="canvasWrapper" class="content-wrap" style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+          <!-- Area kerja siswa -->
+          <div id="canvas">
+            <canvas id="drawCanvas"></canvas>
+            <div id="elements-layer"></div>
+            <div id="petunjuk">🧩 Silakan seret elemen ke area ini</div>
+          </div>
+
+          <!-- Area kunci jawaban -->
+          <div id="canvasKunci">
+            <h3>🔍 Susunan Benar</h3>
+            <img src="assets/kunciJawaban.png" alt="Kunci Jawaban" id="imgKunci">
+          </div>
+        </div>
+
+        <div id="elemenContainer" class="content-wrap" style="text-align:center;padding-top:10px;">
+          <h4 style="margin:6px 0 10px 0">🎨 Elemen Setrika</h4>
+          <div id="elemenList">
+            <div class="elemen" id="elemenA" draggable="true"><img src="assets/titikA.png" alt="A"></div>
+            <div class="elemen" id="elemenB" draggable="true"><img src="assets/titikB.png" alt="B"></div>
+            <div class="elemen" id="elemenC" draggable="true"><img src="assets/titikC.png" alt="C"></div>
+            <div class="elemen" id="elemenD" draggable="true"><img src="assets/titikD.png" alt="D"></div>
+            <div class="elemen" id="elemenE" draggable="true"><img src="assets/titikE.png" alt="E"></div>
+          </div>
+
+          <div class="controls-row" style="margin-top:16px;">
+            <button class="btn" id="modeDraw">✏️ Mode Gambar</button>
+            <button class="btn" id="modeClick">🖱️ Mode Klik</button>
+            <button class="btn" id="undo">↩️ Undo</button>
+            <button class="btn ghost" id="toggleKunci">👁️ Tampilkan Kunci Jawaban</button>
+            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
+          </div>
+          <p class="desc" style="margin-top:10px">Seret elemen ke area kiri, lalu sambungkan dengan garis atau klik-titik.</p>
+        </div>
+      </section>
+
+    </div> <!-- container -->
+  </div> <!-- app -->
+
+  <!-- ====== SCRIPTS: navigation + utility + media-interactive logic (integrated) ====== -->
+  <script>
+    /***************** NAVIGASI SINGLE-PAGE *****************/
+    const pages = document.querySelectorAll('.page');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const globalBack = document.getElementById('globalBack');
+
+    let currentPageId = 'dashboard';
+
+    function showSection(id){
+      pages.forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(id);
+      if (!target) return;
+      target.classList.add('active');
+      currentPageId = id;
+
+      // show/hide global back button (don't show on dashboard)
+      globalBack.style.display = (id === 'dashboard') ? 'none' : 'flex';
+
+      // if showing interaktif, initialize if needed and resize canvas
+      if (id === 'interaktif') {
+        initMediaInteractive();
+        setTimeout(() => resizeDrawCanvas(), 100); // small delay to ensure layout
+      }
+    }
+
+    menuItems.forEach(mi=>{
+      mi.addEventListener('click', ()=> {
+        const t = mi.getAttribute('data-target');
+        showSection(t);
+      });
+    });
+
+    globalBack.addEventListener('click', ()=> showSection('dashboard'));
+
+    // helper to open links in new tab
+    function openInNewTab(url){
+      window.open(url, '_blank');
+    }
+
+    // Initialize with dashboard visible
+    showSection('dashboard');
+
+    /***************** MEDIA INTERAKTIF (adapted from your script.js) *****************/
+    (function(){
+      // Elements
+      const canvasArea = document.getElementById("canvas");
+      const drawCanvas = document.getElementById("drawCanvas");
+      const elementsLayer = document.getElementById("elements-layer");
+      const petunjuk = document.getElementById("petunjuk");
+      const btnDraw = document.getElementById("modeDraw");
+      const btnClick = document.getElementById("modeClick");
+      const btnUndo = document.getElementById("undo");
+      const btnKunci = document.getElementById("toggleKunci");
+
+      let mediaInitialized = false;
+
+      // drawing state
+      let mode = "draw";
+      let drawing = false;
+      let startX, startY;
+      let lines = [];
+      let tempStart = null;
+
+      // canvas sizing helper
+      function resizeDrawCanvas(){
+        // set canvas internal pixel size to match element's size for sharpness
+        const rect = canvasArea.getBoundingClientRect();
+        drawCanvas.width = Math.round(rect.width);
+        drawCanvas.height = Math.round(rect.height);
+      }
+
+      // ensure resize when window changes
+      window.addEventListener('resize', ()=> {
+        if (document.getElementById('interaktif').classList.contains('active')) {
+          resizeDrawCanvas();
+          redrawAll();
+        }
+      });
+
+      // Initialize once when the interaktif section is shown
+      window.initMediaInteractive = function initMediaInteractive(){
+        if (mediaInitialized) return;
+        mediaInitialized = true;
+
+        resizeDrawCanvas();
+
+        // Buttons
+        btnDraw.classList.add("active");
+        btnDraw.onclick = () => setMode("draw");
+        btnClick.onclick = () => setMode("click");
+        btnUndo.onclick = undoLine;
+        btnKunci.onclick = toggleKunci;
+
+        // default mode
+        setMode("draw");
+        activateDrawMode(); // also attach draw listeners
+
+        // Setup dragstart on palette items
+        document.querySelectorAll(".elemen").forEach((el) => {
+          el.addEventListener("dragstart", (e) => {
+            // ensure we use id
+            e.dataTransfer.setData("id", el.id);
+          });
+        });
+
+        elementsLayer.addEventListener("dragover", (e) => e.preventDefault());
+
+        elementsLayer.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("id");
+          const draggedEl = document.getElementById(id);
+          if (!draggedEl) return;
+
+          if (petunjuk) petunjuk.style.display = "none";
+
+          const rect = elementsLayer.getBoundingClientRect();
+          const x = e.clientX - rect.left - 50;
+          const y = e.clientY - rect.top - 50;
+
+          const clone = document.createElement("div");
+          clone.classList.add("resizable");
+          clone.style.left = `${x}px`;
+          clone.style.top = `${y}px`;
+          clone.style.width = "100px";
+          clone.style.height = "100px";
+
+          const img = document.createElement("img");
+          img.src = draggedEl.querySelector("img").src;
+          img.alt = "elemen";
+          clone.appendChild(img);
+
+          const handle = document.createElement("div");
+          handle.classList.add("resize-handle");
+          clone.appendChild(handle);
+
+          elementsLayer.appendChild(clone);
+
+          makeDraggable(clone);
+          makeResizable(clone, handle);
+        });
+
+        // init drawCtx smoothing
+        if (drawCanvas.getContext) {
+          const ctx = drawCanvas.getContext("2d");
+          ctx.lineCap = 'round';
+        }
+      };
+
+      // === MODE HANDLER ===
+      function setMode(m) {
+        mode = m;
+        btnDraw.classList.toggle("active", m === "draw");
+        btnClick.classList.toggle("active", m === "click");
+
+        drawing = false;
+        tempStart = null;
+
+        // remove previous listeners
+        drawCanvas.onmousedown = null;
+        drawCanvas.onmousemove = null;
+        drawCanvas.onmouseup = null;
+        drawCanvas.onclick = null;
+
+        if (m === "draw") {
+          activateDrawMode();
+          // focus pointer events
+          drawCanvas.style.pointerEvents = "auto";
+          elementsLayer.style.pointerEvents = "none";
+          drawCanvas.style.zIndex = 5;
+          elementsLayer.style.zIndex = 4;
+        }
+
+        if (m === "click") {
+          activateClickMode();
+          drawCanvas.style.pointerEvents = "none";
+          elementsLayer.style.pointerEvents = "auto";
+          drawCanvas.style.zIndex = 4;
+          elementsLayer.style.zIndex = 5;
+        }
+
+        drawCanvas.style.cursor = m === "draw" ? "crosshair" : "pointer";
+      }
+
+      // === UNDO ===
+      function undoLine() {
+        lines.pop();
+        redrawAll();
+      }
+
+      // === DRAW MODE ===
+      function activateDrawMode() {
+        drawCanvas.onmousedown = (e) => {
+          drawing = true;
+          const rect = drawCanvas.getBoundingClientRect();
+          startX = e.clientX - rect.left;
+          startY = e.clientY - rect.top;
+        };
+
+        drawCanvas.onmousemove = (e) => {
+          if (!drawing) return;
+          const rect = drawCanvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          redrawAll();
+          const ctx = drawCanvas.getContext("2d");
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(x, y);
+          ctx.strokeStyle = "#2a4d8f";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        };
+
+        drawCanvas.onmouseup = (e) => {
+          if (!drawing) return;
+          drawing = false;
+          const rect = drawCanvas.getBoundingClientRect();
+          const endX = e.clientX - rect.left;
+          const endY = e.clientY - rect.top;
+          lines.push({ x1: startX, y1: startY, x2: endX, y2: endY });
+          redrawAll();
+        };
+      }
+
+      // === CLICK MODE ===
+      function activateClickMode() {
+        drawCanvas.onclick = (e) => {
+          const rect = drawCanvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          if (!tempStart) {
+            tempStart = { x, y };
+            drawPoint(x, y, "#ff0000");
+          } else {
+            lines.push({ x1: tempStart.x, y1: tempStart.y, x2: x, y2: y });
+            tempStart = null;
+            redrawAll();
+          }
+        };
+      }
+
+      // === UTILS ===
+      function drawPoint(x, y, color) {
+        const ctx = drawCanvas.getContext("2d");
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+
+      function redrawAll() {
+        const ctx = drawCanvas.getContext("2d");
+        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        for (let l of lines) {
+          ctx.beginPath();
+          ctx.moveTo(l.x1, l.y1);
+          ctx.lineTo(l.x2, l.y2);
+          ctx.strokeStyle = "#2a4d8f";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+        }
+      }
+
+      // === DRAG & DROP already set up in initMediaInteractive ===
+
+      // === DRAG & RESIZE helpers ===
+      function makeDraggable(el) {
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        el.addEventListener("mousedown", (e) => {
+          if (e.target.classList.contains("resize-handle")) return;
+          isDragging = true;
+          const rect = elementsLayer.getBoundingClientRect();
+          // offset relative to parent layer
+          offsetX = e.clientX - rect.left - el.offsetLeft;
+          offsetY = e.clientY - rect.top - el.offsetTop;
+          el.style.zIndex = 10;
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const rect = elementsLayer.getBoundingClientRect();
+          let newX = e.clientX - rect.left - offsetX;
+          let newY = e.clientY - rect.top - offsetY;
+          newX = Math.max(0, Math.min(newX, elementsLayer.clientWidth - el.offsetWidth));
+          newY = Math.max(0, Math.min(newY, elementsLayer.clientHeight - el.offsetHeight));
+          el.style.left = `${newX}px`;
+          el.style.top = `${newY}px`;
+        });
+
+        document.addEventListener("mouseup", () => {
+          isDragging = false;
+          el.style.zIndex = 5;
+        });
+      }
+
+      function makeResizable(el, handle) {
+        let isResizing = false;
+        let startX, startY, startW, startH;
+
+        handle.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          isResizing = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          startW = parseInt(window.getComputedStyle(el).width, 10);
+          startH = parseInt(window.getComputedStyle(el).height, 10);
+        });
+
+        document.addEventListener("mousemove", (e) => {
+          if (!isResizing) return;
+          let newW = startW + (e.clientX - startX);
+          let newH = startH + (e.clientY - startY);
+          newW = Math.max(60, newW);
+          newH = Math.max(60, newH);
+          el.style.width = newW + "px";
+          el.style.height = newH + "px";
+        });
+
+        document.addEventListener("mouseup", () => {
+          isResizing = false;
+        });
+      }
+
+      function toggleKunci(){
+        const divKunci = document.getElementById('canvasKunci');
+        if (divKunci.style.display === 'none' || divKunci.style.display === '') {
+          divKunci.style.display = 'block';
+          btnKunci.textContent = '🙈 Sembunyikan Kunci Jawaban';
+        } else {
+          divKunci.style.display = 'none';
+          btnKunci.textContent = '👁️ Tampilkan Kunci Jawaban';
+        }
+      }
+
+      // expose resize needed by outer caller
+      window.resizeDrawCanvas = resizeDrawCanvas;
+
+    })(); // end media-interactive IIFE
+
+    /***************** Optionally: small helpers to set video/slides dynamically *****************/
+    // If you'd like to change slides/video via JS later, you can call these
+    function setSlidesEmbed(url){
+      const frame = document.getElementById('slidesFrame');
+      if(frame) frame.src = url;
+    }
+
+    function setVideoEmbed(youtubeEmbedUrl){
+      const vidFrame = document.querySelector('#video .viewer iframe');
+      if(vidFrame) vidFrame.src = youtubeEmbedUrl;
+    }
+
+  </script>
+</body>
+</html>
