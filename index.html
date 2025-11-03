@@ -26,6 +26,33 @@
       background:linear-gradient(135deg,var(--bg1),var(--bg2));
       color:#222;
     }
+/* Horizontal scroll video */
+.video-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.video-scroll iframe {
+  width: 320px;
+  height: 180px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border: none;
+  background: #000;
+}
+
+/* Responsif */
+@media (max-width: 600px) {
+  .video-scroll iframe {
+    width: 260px;
+    height: 150px;
+  }
+}
 
     /* --- Centered dashboard container --- */
     .app {
@@ -277,20 +304,23 @@
       </section>
 
       <!-- ================== VIDEO ================== -->
-      <section id="video" class="page">
-        <h2 class="page-header">🎬 Video Pembelajaran</h2>
+      <!-- ================== VIDEO ================== -->
+<section id="video" class="page">
+  <h2 class="page-header">🎬 Video Pembelajaran</h2>
 
-        <div class="content-wrap">
-          <div class="viewer" id="videoList">
-            <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID_1" allowfullscreen></iframe>
-          </div>
+  <div class="content-wrap">
+    <div class="video-scroll">
+      <iframe src="https://www.youtube.com/embed/ASBNa7b-7MQ" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/aON_if40J_8" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/SJ739--Vc3A" allowfullscreen></iframe>
+    </div>
 
-          <div class="controls-row">
-            <button class="btn" onclick="openInNewTab('https://www.youtube.com/watch?v=YOUR_YOUTUBE_VIDEO_ID_1')">Buka di YouTube</button>
-            <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
-          </div>
-        </div>
-      </section>
+    <div class="controls-row">
+      <button class="btn ghost" onclick="showSection('dashboard')">Kembali ke Menu Utama</button>
+    </div>
+  </div>
+</section>
+
 
       <!-- ================== MEDIA INTERAKTIF ================== -->
       <section id="interaktif" class="page">
